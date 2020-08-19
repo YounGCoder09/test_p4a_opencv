@@ -1,0 +1,32 @@
+  
+name: buildozer
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: apt update
+      run: sudo apt-get update
+
+    - name: build
+      run: |
+        sudo apt-get install -y git zip unzip openjdk-8-jdk python3-pip \
+        python3-venv autoconf libtool pkg-config zlib1g-dev \
+        libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev \
+        libssl-dev
+        python3 -m venv .venv
+        . .venv/bin/activate
+        pip3 install --upgrade Cython virtualenv buildozer
+        buildozer android debug
+    - name: upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: bin
+        path: bin
